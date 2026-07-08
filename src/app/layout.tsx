@@ -3,7 +3,6 @@ import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { SITE } from "@/lib/config";
 import { SmoothScroll } from "@/components/SmoothScroll";
-import { Cursor } from "@/components/Cursor";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -75,7 +74,6 @@ export default function RootLayout({
         className="font-sans antialiased bg-green text-cream"
         suppressHydrationWarning
       >
-        <Cursor />
         <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
