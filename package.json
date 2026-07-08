@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "framer-motion": "11.11.9",
+    "heic2any": "^0.0.4",
     "lenis": "^1.3.25",
     "next": "^14.2.35",
     "qrcode.react": "4.1.0",

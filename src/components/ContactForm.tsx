@@ -29,18 +29,42 @@ function humanSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
-// Compresse les photos volumineuses côté navigateur pour qu'elles passent
-// la limite d'envoi (les fichiers PDF / SVG / petits logos sont laissés tels quels).
+// Convertit les photos iPhone (.HEIC) en JPEG puis compresse/redimensionne les
+// images volumineuses, côté navigateur, pour un envoi fiable depuis n'importe
+// quel appareil. Les PDF / SVG / petits logos sont laissés tels quels.
 async function optimizeImage(file: File): Promise<File> {
-  if (
-    !file.type.startsWith("image/") ||
-    file.type === "image/svg+xml" ||
-    file.size <= 900 * 1024
-  ) {
-    return file;
+  const isHeic =
+    /image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+
+  let working = file;
+
+  // 1) HEIC / HEIF (iPhone) → JPEG
+  if (isHeic) {
+    try {
+      const heic2any = (await import("heic2any")).default;
+      const out = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.85,
+      });
+      const blob = (Array.isArray(out) ? out[0] : out) as Blob;
+      working = new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", {
+        type: "image/jpeg",
+      });
+    } catch {
+      return file; // en cas d'échec, on garde l'original (au moins il apparaît)
+    }
   }
+
+  // 2) Compression / redimensionnement des photos (on épargne les petits logos)
+  const t = working.type;
+  const shouldCompress =
+    t === "image/jpeg" ||
+    ((t === "image/png" || t === "image/webp") && working.size > 1_200_000);
+  if (!shouldCompress) return working;
+
   try {
-    const bitmap = await createImageBitmap(file);
+    const bitmap = await createImageBitmap(working);
     const maxDim = 1920;
     const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
     const width = Math.round(bitmap.width * scale);
@@ -50,7 +74,7 @@ async function optimizeImage(file: File): Promise<File> {
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return file;
+    if (!ctx) return working;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width, height);
     ctx.drawImage(bitmap, 0, 0, width, height);
@@ -58,13 +82,14 @@ async function optimizeImage(file: File): Promise<File> {
     const blob: Blob | null = await new Promise((res) =>
       canvas.toBlob(res, "image/jpeg", 0.82)
     );
-    if (blob && blob.size < file.size) {
-      const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
-      return new File([blob], name, { type: "image/jpeg" });
+    if (blob && blob.size < working.size) {
+      return new File([blob], working.name.replace(/\.[^.]+$/, "") + ".jpg", {
+        type: "image/jpeg",
+      });
     }
-    return file;
+    return working;
   } catch {
-    return file;
+    return working;
   }
 }
 
@@ -316,13 +341,13 @@ export function ContactForm() {
             Glissez vos photos ici ou cliquez
           </span>
           <span className="mt-1 text-sm text-cream/50">
-            JPG, PNG, SVG, PDF — vos photos sont optimisées automatiquement
+            JPG, PNG, HEIC (iPhone), PDF — vos photos sont optimisées automatiquement
           </span>
           <input
             id="files"
             type="file"
             multiple
-            accept="image/*,application/pdf,.pdf,.svg,.jpg,.jpeg,.png"
+            accept="image/*,.heic,.heif,application/pdf,.pdf,.svg,.jpg,.jpeg,.png"
             className="hidden"
             onChange={(e) => {
               addFiles(e.target.files);
