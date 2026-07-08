@@ -29,12 +29,53 @@ function humanSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
+// Compresse les photos volumineuses côté navigateur pour qu'elles passent
+// la limite d'envoi (les fichiers PDF / SVG / petits logos sont laissés tels quels).
+async function optimizeImage(file: File): Promise<File> {
+  if (
+    !file.type.startsWith("image/") ||
+    file.type === "image/svg+xml" ||
+    file.size <= 900 * 1024
+  ) {
+    return file;
+  }
+  try {
+    const bitmap = await createImageBitmap(file);
+    const maxDim = 1920;
+    const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(bitmap, 0, 0, width, height);
+
+    const blob: Blob | null = await new Promise((res) =>
+      canvas.toBlob(res, "image/jpeg", 0.82)
+    );
+    if (blob && blob.size < file.size) {
+      const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+      return new File([blob], name, { type: "image/jpeg" });
+    }
+    return file;
+  } catch {
+    return file;
+  }
+}
+
 export function ContactForm() {
   const [data, setData] = useState({ ...EMPTY });
   const [files, setFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
+  const [processing, setProcessing] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const totalSize = files.reduce((a, f) => a + f.size, 0);
   const sending = status === "sending";
@@ -42,9 +83,16 @@ export function ContactForm() {
   const set = (k: keyof typeof EMPTY, v: string) =>
     setData((d) => ({ ...d, [k]: v }));
 
-  function addFiles(list: FileList | null) {
-    if (!list) return;
-    setFiles((prev) => [...prev, ...Array.from(list)]);
+  async function addFiles(list: FileList | null) {
+    if (!list || list.length === 0) return;
+    setError("");
+    setProcessing(true);
+    try {
+      const processed = await Promise.all(Array.from(list).map(optimizeImage));
+      setFiles((prev) => [...prev, ...processed]);
+    } finally {
+      setProcessing(false);
+    }
   }
   function removeFile(i: number) {
     setFiles((prev) => prev.filter((_, idx) => idx !== i));
@@ -56,7 +104,7 @@ export function ContactForm() {
 
     if (totalSize > MAX_TOTAL) {
       setError(
-        "Fichiers trop volumineux (4 Mo maximum au total). Envoyez les gros fichiers par email après le premier contact."
+        "Fichiers encore trop volumineux (4 Mo max au total). Retirez-en quelques-uns ou envoyez-les par email après le premier contact."
       );
       setStatus("error");
       return;
@@ -241,20 +289,34 @@ export function ContactForm() {
         </div>
       </div>
 
-      {/* Zone de téléversement */}
+      {/* Zone de téléversement (clic + glisser-déposer) */}
       <div>
         <label className={labelCls}>
-          Fichiers (logo, images, PDF, cahier des charges)
+          Fichiers (logo, photos, PDF, cahier des charges)
         </label>
         <label
           htmlFor="files"
-          className="mt-2 flex cursor-pointer flex-col items-center justify-center border border-dashed border-cream/30 px-6 py-10 text-center transition-colors hover:border-red hover:bg-greenlight/25"
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            addFiles(e.dataTransfer.files);
+          }}
+          className={`mt-2 flex cursor-pointer flex-col items-center justify-center border border-dashed px-6 py-10 text-center transition-colors ${
+            dragOver
+              ? "border-red bg-greenlight/40"
+              : "border-cream/30 hover:border-red hover:bg-greenlight/25"
+          }`}
         >
           <span className="text-lg font-medium text-cream">
-            Glissez vos fichiers ou cliquez ici
+            Glissez vos photos ici ou cliquez
           </span>
           <span className="mt-1 text-sm text-cream/50">
-            JPG, PNG, SVG, PDF — plusieurs fichiers acceptés (4 Mo max au total)
+            JPG, PNG, SVG, PDF — vos photos sont optimisées automatiquement
           </span>
           <input
             id="files"
@@ -268,6 +330,10 @@ export function ContactForm() {
             }}
           />
         </label>
+
+        {processing && (
+          <p className="mt-3 text-sm text-cream/60">Optimisation des photos…</p>
+        )}
 
         {files.length > 0 && (
           <ul className="mt-4 space-y-2">
@@ -317,7 +383,7 @@ export function ContactForm() {
 
       <button
         type="submit"
-        disabled={sending}
+        disabled={sending || processing}
         className="group inline-flex w-full items-center justify-center gap-3 rounded-full bg-red px-8 py-4 text-base font-semibold text-ink transition hover:brightness-110 disabled:opacity-50 sm:w-auto"
       >
         {sending ? "Envoi en cours…" : "Envoyer ma demande"}
