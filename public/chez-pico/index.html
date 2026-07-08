@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chez Pico — Pizzeria à Bouc-Bel-Air</title>
+<meta name="description" content="Chez Pico, pizzeria artisanale Place de l'Hôtel de Ville à Bouc-Bel-Air. Pizzas, calzones et pizzas-desserts. Sur place, à emporter ou en livraison." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cardo:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --cream: #f5efe4;
+    --cream-warm: #ede4d3;
+    --paper: #faf6ed;
+    --ink: #2a1f17;
+    --ink-soft: #4a3a2c;
+    --terracotta: #b94f2a;
+    --terracotta-deep: #8e3a1e;
+    --olive: #5a6240;
+    --gold: #b8923f;
+    --rule: #c9b896;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Cardo', 'Times New Roman', serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.65;
+    font-size: 17px;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(185, 79, 42, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(90, 98, 64, 0.04) 0%, transparent 50%);
+  }
+
+  /* Subtle paper grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    z-index: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.7 0 0 0 0 0.6 0 0 0 0 0.45 0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ───────── HEADER ───────── */
+  header {
+    padding: 28px 0;
+    border-bottom: 1px solid var(--rule);
+    position: sticky;
+    top: 0;
+    background: rgba(250, 246, 237, 0.92);
+    backdrop-filter: blur(8px);
+    z-index: 50;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--terracotta);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--terracotta);
+    font-style: italic;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 38px;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  nav a {
+    position: relative;
+    padding: 4px 0;
+    transition: color .25s ease;
+  }
+  nav a:hover { color: var(--terracotta); }
+  nav a::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: -2px;
+    width: 0; height: 1px;
+    background: var(--terracotta);
+    transition: width .3s ease;
+  }
+  nav a:hover::after { width: 100%; }
+
+  .nav-cta {
+    color: var(--terracotta);
+  }
+
+  .menu-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--ink); }
+
+  /* ───────── HERO ───────── */
+  .hero {
+    padding: 110px 0 90px;
+    position: relative;
+    text-align: center;
+  }
+
+  .ornament {
+    color: var(--terracotta);
+    font-size: 14px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+  .ornament::before, .ornament::after {
+    content: "";
+    width: 50px;
+    height: 1px;
+    background: var(--terracotta);
+    opacity: 0.5;
+  }
+
+  .hero h1 {
+    font-size: clamp(64px, 11vw, 144px);
+    line-height: 0.95;
+    font-weight: 500;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--terracotta);
+    font-weight: 400;
+  }
+
+  .hero-tagline {
+    font-size: 22px;
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: 580px;
+    margin: 0 auto 48px;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 16px 38px;
+    font-family: 'Cardo', serif;
+    font-size: 15px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: all .3s ease;
+    cursor: pointer;
+    border: 1px solid var(--ink);
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .btn-primary:hover {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn-secondary:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Rating banner */
+  .rating-strip {
+    margin-top: 72px;
+    padding: 28px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    font-size: 15px;
+    color: var(--ink-soft);
+    flex-wrap: wrap;
+  }
+  .rating-strip strong {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    color: var(--terracotta);
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .stars { color: var(--gold); letter-spacing: 2px; }
+
+  /* ───────── SECTIONS ───────── */
+  section {
+    padding: 120px 0;
+    position: relative;
+  }
+
+  .section-label {
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 18px;
+  }
+
+  .section-title {
+    font-size: clamp(42px, 6vw, 72px);
+    line-height: 1.05;
+    margin-bottom: 28px;
+    font-weight: 500;
+  }
+  .section-title em {
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* About */
+  .about {
+    background: var(--cream);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .about-text p {
+    font-size: 18px;
+    line-height: 1.8;
+    margin-bottom: 22px;
+    color: var(--ink-soft);
+  }
+  .about-text p:first-of-type::first-letter {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 64px;
+    float: left;
+    line-height: 0.85;
+    padding: 4px 12px 0 0;
+    color: var(--terracotta);
+    font-weight: 600;
+  }
+
+  .about-image {
+    aspect-ratio: 4/5;
+    background:
+      linear-gradient(135deg, rgba(185, 79, 42, 0.15), rgba(42, 31, 23, 0.4)),
+      radial-gradient(circle at 50% 50%, #c8794d 0%, #8e3a1e 100%);
+    border-radius: 2px;
+    position: relative;
+    box-shadow: 0 30px 60px -20px rgba(42, 31, 23, 0.35);
+    overflow: hidden;
+  }
+  .about-image::after {
+    content: "";
+    position: absolute;
+    inset: 16px;
+    border: 1px solid rgba(245, 239, 228, 0.3);
+  }
+  .about-image-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 28px;
+    text-align: center;
+    padding: 40px;
+    line-height: 1.4;
+  }
+
+  /* ───────── MENU ───────── */
+  .menu {
+    text-align: center;
+  }
+  .menu-intro {
+    max-width: 560px;
+    margin: 0 auto 72px;
+    color: var(--ink-soft);
+    font-size: 18px;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 80px;
+    max-width: 980px;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  .menu-category {
+    margin-bottom: 56px;
+  }
+  .menu-category h3 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--terracotta);
+    font-style: italic;
+  }
+
+  .menu-item {
+    margin-bottom: 22px;
+  }
+  .menu-item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .menu-item-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .menu-item-dots {
+    flex: 1;
+    border-bottom: 1px dotted var(--rule);
+    margin: 0 6px 6px;
+    min-width: 12px;
+  }
+  .menu-item-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    color: var(--terracotta);
+    font-weight: 500;
+  }
+  .menu-item-desc {
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .menu-note {
+    margin-top: 48px;
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 16px;
+  }
+
+  /* ───────── REVIEWS ───────── */
+  .reviews {
+    background: var(--cream-warm);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .reviews-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .review-card {
+    background: var(--paper);
+    padding: 40px 36px;
+    border: 1px solid var(--rule);
+    position: relative;
+  }
+  .review-card::before {
+    content: "“";
+    position: absolute;
+    top: -8px;
+    left: 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 90px;
+    color: var(--terracotta);
+    line-height: 1;
+  }
+  .review-stars {
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+  .review-text {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-bottom: 24px;
+    font-family: 'Cormorant Garamond', serif;
+  }
+  .review-author {
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .review-date {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  /* ───────── INFO / CONTACT ───────── */
+  .info {
+    text-align: center;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 56px;
+    margin-top: 64px;
+    text-align: center;
+  }
+  .info-item h4 {
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 18px;
+    font-family: 'Cardo', serif;
+    font-weight: 700;
+  }
+  .info-item p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1.45;
+  }
+  .info-item a:hover { color: var(--terracotta); }
+
+  .info-divider {
+    width: 60px; height: 1px;
+    background: var(--rule);
+    margin: 64px auto 0;
+  }
+
+  .services {
+    margin-top: 56px;
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .services span {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .services span::before {
+    content: "✦";
+    color: var(--terracotta);
+    font-size: 10px;
+  }
+
+  /* ───────── FOOTER ───────── */
+  footer {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 80px 0 32px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 56px;
+    margin-bottom: 56px;
+  }
+  footer h5 {
+    font-family: 'Cardo', serif;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 38px;
+    font-style: italic;
+    margin-bottom: 14px;
+  }
+  .footer-tagline {
+    color: rgba(245, 239, 228, 0.7);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    max-width: 360px;
+  }
+  footer ul { list-style: none; }
+  footer li {
+    margin-bottom: 10px;
+    color: rgba(245, 239, 228, 0.85);
+    font-size: 15px;
+  }
+  footer a:hover { color: var(--gold); }
+  .footer-bottom {
+    border-top: 1px solid rgba(245, 239, 228, 0.15);
+    padding-top: 24px;
+    text-align: center;
+    color: rgba(245, 239, 228, 0.5);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  /* ───────── ANIMATIONS ───────── */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { animation: rise 1s cubic-bezier(.2,.6,.2,1) both; }
+  .reveal.d1 { animation-delay: .1s; }
+  .reveal.d2 { animation-delay: .25s; }
+  .reveal.d3 { animation-delay: .4s; }
+  .reveal.d4 { animation-delay: .55s; }
+
+  /* ───────── RESPONSIVE ───────── */
+  @media (max-width: 860px) {
+    nav ul { display: none; }
+    .menu-toggle { display: block; }
+    .about-grid,
+    .menu-grid,
+    .reviews-grid,
+    .info-grid,
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .hero { padding: 70px 0 60px; }
+    section { padding: 80px 0; }
+    .container { padding: 0 22px; }
+    .review-card { padding: 32px 28px; }
+    .ornament::before, .ornament::after { width: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="container nav">
+    <div class="brand">
+      <span class="brand-mark">P</span>
+      Chez Pico
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#histoire">Maison</a></li>
+        <li><a href="#carte">Carte</a></li>
+        <li><a href="#avis">Avis</a></li>
+        <li><a href="#contact" class="nav-cta">Commander</a></li>
+      </ul>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="ornament reveal">Bouc-Bel-Air · depuis le four</div>
+    <h1 class="reveal d1">Chez <em>Pico</em></h1>
+    <p class="hero-tagline reveal d2">
+      La pizza artisanale, faite avec passion, sur la place du village.
+    </p>
+    <div class="hero-cta reveal d3">
+      <a href="tel:0650689077" class="btn btn-primary">Commander · 06 50 68 90 77</a>
+      <a href="#carte" class="btn btn-secondary">Découvrir la carte</a>
+    </div>
+
+    <div class="rating-strip reveal d4">
+      <span><strong>4,9</strong> <span class="stars">★★★★★</span></span>
+      <span>·</span>
+      <span>306 avis Google</span>
+      <span>·</span>
+      <span>10 – 20 € par personne</span>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="histoire">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="section-label">La Maison</div>
+        <h2 class="section-title">Une pizza, <em>une histoire.</em></h2>
+        <p>
+          Au cœur de Bouc-Bel-Air, sur la Place de l'Hôtel de Ville, Chez Pico
+          fait partie de ces adresses que l'on garde précieusement. Mr Pico et
+          son équipe accueillent chaque client avec le sourire, et préparent
+          des pizzas un peu plus épaisses, généreuses, croustillantes — comme
+          on les aime.
+        </p>
+        <p>
+          Une carte mise à jour régulièrement pour surprendre les habitués,
+          des classiques savamment exécutés, des créations qui sortent du lot
+          — la Super Arménienne, riche en marchandise, est devenue l'une de
+          nos signatures.
+        </p>
+        <p>
+          Sur place, à emporter ou en livraison : le bon moment, à votre
+          rythme.
+        </p>
+      </div>
+      <div class="about-image">
+        <div class="about-image-inner">
+          « Les pizzas sont un peu plus épaisses<br>et très croustillantes. »
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section class="menu" id="carte">
+  <div class="container">
+    <div class="section-label">La Carte</div>
+    <h2 class="section-title">Nos <em>spécialités</em></h2>
+    <p class="menu-intro">
+      Pizzas, calzones et pizzas-desserts. La carte évolue au fil des
+      saisons et de l'humeur du four.
+    </p>
+
+    <div class="menu-grid">
+      <!-- Colonne 1 -->
+      <div>
+        <div class="menu-category">
+          <h3>Les Classiques</h3>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Margherita</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">10 €</span>
+            </div>
+            <div class="menu-item-desc">Tomate, mozzarella fior di latte, basilic frais</div>
+          </div>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Reine</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">12 €</span>
+            </div>
+            <div class="menu-item-desc">Tomate, mozzarella, jambon, champignons</div>
+          </div>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Italienne</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">13 €</span>
+            </div>
+            <div class="menu-item-desc">Tomate, mozzarella, jambon de Parme, roquette, copeaux de parmesan</div>
+          </div>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Quatre Fromages</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">13 €</span>
+            </div>
+            <div class="menu-item-desc">Mozzarella, gorgonzola, chèvre, parmesan</div>
+          </div>
+        </div>
+
+        <div class="menu-category">
+          <h3>Les Calzones</h3>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Calzone Pico</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">14 €</span>
+            </div>
+            <div class="menu-item-desc">Jambon, champignons, œuf, mozzarella, sauce tomate</div>
+          </div>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Calzone Végétarien</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">13 €</span>
+            </div>
+            <div class="menu-item-desc">Légumes grillés, mozzarella, ricotta, basilic</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colonne 2 -->
+      <div>
+        <div class="menu-category">
+          <h3>Signatures</h3>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Super Arménienne ★</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">15 €</span>
+            </div>
+            <div class="menu-item-desc">Notre best-seller. Riche en marchandise, viande hachée épicée, mozzarella, oignons confits</div>
+          </div>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">La Provençale</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">14 €</span>
+            </div>
+            <div class="menu-item-desc">Tomate, mozzarella, courgettes, aubergines, poivrons, herbes de Provence</div>
+          </div>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Pizza du Moment</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">prix du jour</span>
+            </div>
+            <div class="menu-item-desc">La création de Pico, qui change au fil des saisons. Demandez à la commande.</div>
+          </div>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Pizza sans gluten</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">+ 2 €</span>
+            </div>
+            <div class="menu-item-desc">Pâte sans gluten disponible sur l'ensemble de la carte</div>
+          </div>
+        </div>
+
+        <div class="menu-category">
+          <h3>Pizzas-Desserts</h3>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Nutella</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">9 €</span>
+            </div>
+            <div class="menu-item-desc">Pâte fine cuite au four, Nutella généreusement étalé</div>
+          </div>
+
+          <div class="menu-item">
+            <div class="menu-item-head">
+              <span class="menu-item-name">Pomme-Cannelle</span>
+              <span class="menu-item-dots"></span>
+              <span class="menu-item-price">10 €</span>
+            </div>
+            <div class="menu-item-desc">Pommes confites, cannelle, sucre roux, amandes effilées</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="menu-note">
+      Carte susceptible d'évoluer. Contactez-nous pour la carte du jour
+      ou pour toute demande particulière.
+    </p>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="reviews" id="avis">
+  <div class="container">
+    <div class="reviews-header">
+      <div class="section-label">Ils en parlent</div>
+      <h2 class="section-title">Au fil des <em>avis</em></h2>
+      <div style="margin-top:12px; color:var(--ink-soft); font-style:italic; font-family:'Cormorant Garamond',serif; font-size:18px;">
+        4,9 / 5 — sur 306 avis Google
+      </div>
+    </div>
+
+    <div class="reviews-grid">
+      <article class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">
+          Franchement une belle découverte… les pizzas sont super bonnes,
+          Mr Pico et son collègue Idriss super sympas, accueillants et
+          souriants. On est restés sur place manger nos pizzas et on a passé
+          un bon moment. Au top, on garde l'adresse pour une prochaine fois.
+        </p>
+        <div class="review-author">Fany Coco</div>
+        <div class="review-date">Local Guide · août 2025</div>
+      </article>
+
+      <article class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">
+          Découvert par hasard. Très satisfait, les pizzas sont un peu plus
+          épaisses et très croustillantes. Différent mais perso j'aime bien
+          — surtout la super Arménienne, riche en marchandise.
+        </p>
+        <div class="review-author">Anthony</div>
+        <div class="review-date">Local Guide · décembre 2025</div>
+      </article>
+
+      <article class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">
+          Un large choix de pizza, calzone & pizza-dessert fortement
+          appréciable. Une carte mise à jour régulièrement afin de surprendre
+          vos papilles. Sans oublier l'accueil…
+        </p>
+        <div class="review-author">CB650R Honda</div>
+        <div class="review-date">Local Guide · août 2025</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- INFO -->
+<section class="info" id="contact">
+  <div class="container">
+    <div class="section-label">Nous trouver</div>
+    <h2 class="section-title">À <em>votre table.</em></h2>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <h4>Adresse</h4>
+        <p>
+          Place de l'Hôtel de Ville<br>
+          13320 Bouc-Bel-Air
+        </p>
+      </div>
+      <div class="info-item">
+        <h4>Téléphone</h4>
+        <p>
+          <a href="tel:0650689077">06 50 68 90 77</a>
+        </p>
+      </div>
+      <div class="info-item">
+        <h4>Horaires</h4>
+        <p>
+          Du mardi au dimanche<br>
+          à partir de 18h00
+        </p>
+      </div>
+    </div>
+
+    <div class="info-divider"></div>
+
+    <div class="services">
+      <span>Sur place</span>
+      <span>À emporter</span>
+      <span>Drive disponible</span>
+      <span>Livraison</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Chez Pico</div>
+        <p class="footer-tagline">
+          La pizzeria artisanale du village. Depuis Bouc-Bel-Air,
+          avec amour et générosité.
+        </p>
+      </div>
+      <div>
+        <h5>Adresse</h5>
+        <ul>
+          <li>Place de l'Hôtel de Ville</li>
+          <li>13320 Bouc-Bel-Air</li>
+          <li><a href="https://maps.google.com/?q=Chez+Pico+Bouc-Bel-Air" target="_blank" rel="noopener">Itinéraire ↗</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Réserver / Commander</h5>
+        <ul>
+          <li><a href="tel:0650689077">06 50 68 90 77</a></li>
+          <li>Mardi – Dimanche</li>
+          <li>À partir de 18h00</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © Chez Pico · Bouc-Bel-Air · Tous droits réservés
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Petit toggle mobile (déroule la nav verticalement)
+  const toggle = document.querySelector('.menu-toggle');
+  const navList = document.querySelector('nav ul');
+  toggle?.addEventListener('click', () => {
+    if (navList.style.display === 'flex') {
+      navList.style.display = 'none';
+    } else {
+      navList.style.display = 'flex';
+      navList.style.flexDirection = 'column';
+      navList.style.position = 'absolute';
+      navList.style.top = '78px';
+      navList.style.right = '22px';
+      navList.style.background = 'var(--paper)';
+      navList.style.padding = '20px 28px';
+      navList.style.border = '1px solid var(--rule)';
+      navList.style.gap = '14px';
+    }
+  });
+
+  // Ferme le menu mobile au clic sur un lien
+  document.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('click', () => {
+      if (window.innerWidth <= 860) navList.style.display = 'none';
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maison Doré — Casino Démo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="brand" onclick="Casino.goLobby()">
+      <div class="brand-mark">♦</div>
+      <div>
+        <div class="brand-name">Maison <b>Doré</b></div>
+        <div class="brand-sub">Salon de jeu · Démonstration</div>
+      </div>
+    </div>
+    <div class="demo-badge">Mode démo · argent fictif</div>
+    <div class="topbar-spacer"></div>
+    <div class="balance" title="Solde de jetons fictifs">
+      <div class="coin"></div>
+      <div>
+        <div class="balance-num" id="balanceNum">0</div>
+        <div class="balance-lbl">Jetons</div>
+      </div>
+    </div>
+    <button class="btn ghost danger" onclick="Casino.resetBalance()" title="Recréditer le solde de démonstration">Recharger</button>
+  </header>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- ============ LOBBY ============ -->
+  <main class="view" id="lobbyView">
+    <section class="hero">
+      <h1>Le frisson du <em>live casino</em>,<br />sans miser un centime.</h1>
+      <p>
+        Rejouez de véritables parties issues d'un historique réel de casino live —
+        Lucky&nbsp;7, Dragon&nbsp;Tiger — avec des jetons fictifs. Roadmaps authentiques,
+        statistiques réelles, cartes distribuées comme au salon.
+      </p>
+      <div class="rule"></div>
+    </section>
+
+    <section class="games-grid" id="gamesGrid"><!-- rempli par app.js --></section>
+
+    <p class="footnote">
+      <b>Aucune transaction réelle.</b> Ce site est une démonstration technique construite
+      sur un jeu de données historique (mars–avril 2023). Les jetons n'ont aucune valeur.
+    </p>
+  </main>
+
+  <!-- ============ GAME ============ -->
+  <main class="view hidden" id="gameView"><!-- construit par app.js --></main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

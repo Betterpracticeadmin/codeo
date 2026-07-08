@@ -66,8 +66,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={`${inter.variable} ${serif.variable}`}>
-      <body className="font-sans antialiased bg-green text-cream">
+    <html
+      lang="fr"
+      className={`${inter.variable} ${serif.variable}`}
+      suppressHydrationWarning
+    >
+      <body
+        className="font-sans antialiased bg-green text-cream"
+        suppressHydrationWarning
+      >
         <Cursor />
         <SmoothScroll>{children}</SmoothScroll>
       </body>

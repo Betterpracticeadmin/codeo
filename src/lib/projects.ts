@@ -1,16 +1,14 @@
 // Réalisations affichées dans la galerie.
-// Ajoute/édite simplement des entrées ici — le site se met à jour tout seul.
+// href = lien vers la démo hébergée dans /public (aperçu iframe + clic).
 export type Project = {
   title: string;
   category: string;
   year: string;
+  href?: string;
 };
 
 export const PROJECTS: Project[] = [
-  { title: "Le Jardin", category: "Restaurant", year: "2026" },
-  { title: "Atelier Noir", category: "Artisan", year: "2026" },
-  { title: "Studio Lumen", category: "Portfolio", year: "2025" },
-  { title: "Maison Doré", category: "Identité digitale", year: "2025" },
-  { title: "Belle Rive", category: "Institut de beauté", year: "2025" },
-  { title: "Forge & Co", category: "Landing page", year: "2024" },
+  { title: "Chez Pico", category: "Pizzeria · Bouc-Bel-Air", year: "2026", href: "/chez-pico/index.html" },
+  { title: "Casino Démo", category: "Jeu web · argent fictif", year: "2026", href: "/casino/index.html" },
+  { title: "Le Jardin", category: "Restaurant · Lyon", year: "2026", href: "/le-jardin/index.html" },
 ];
